@@ -18,6 +18,10 @@ type DB interface {
 	IDs(context.Context) ([]int, error)
 }
 
+type Publisher interface {
+	Publish(context.Context, string, []byte) error
+}
+
 type XKCD interface {
 	Get(context.Context, int) (XKCDInfo, error)
 	LastID(context.Context) (int, error)
