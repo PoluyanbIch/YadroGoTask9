@@ -99,7 +99,7 @@
 				
 				<option value="file21">yadro.com/course/update/adapters/words/words.go (0.0%)</option>
 				
-				<option value="file22">yadro.com/course/update/adapters/xkcd/xkcd.go (0.0%)</option>
+				<option value="file22">yadro.com/course/update/adapters/xkcd/xkcd.go (75.6%)</option>
 				
 				<option value="file23">yadro.com/course/update/config/config.go (0.0%)</option>
 				
@@ -1804,40 +1804,40 @@ type Client struct {
         url    string
 }
 
-func NewClient(url string, timeout time.Duration, log *slog.Logger) (*Client, error) <span class="cov0" title="0">{
+func NewClient(url string, timeout time.Duration, log *slog.Logger) (*Client, error) <span class="cov10" title="5">{
         if url == "" </span><span class="cov0" title="0">{
                 return nil, fmt.Errorf("empty base url specified")
         }</span>
-        <span class="cov0" title="0">return &amp;Client{
+        <span class="cov10" title="5">return &amp;Client{
                 client: http.Client{Timeout: timeout},
                 log:    log,
                 url:    url,
         }, nil</span>
 }
 
-func (c Client) Get(ctx context.Context, id int) (core.XKCDInfo, error) <span class="cov0" title="0">{
+func (c Client) Get(ctx context.Context, id int) (core.XKCDInfo, error) <span class="cov8" title="4">{
         url := c.url + "/" + strconv.Itoa(id) + "/info.0.json"
         req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
         if err != nil </span><span class="cov0" title="0">{
                 return core.XKCDInfo{}, err
         }</span>
-        <span class="cov0" title="0">resp, err := c.client.Do(req)
+        <span class="cov8" title="4">resp, err := c.client.Do(req)
         if err != nil </span><span class="cov0" title="0">{
                 return core.XKCDInfo{}, err
         }</span>
-        <span class="cov0" title="0">defer func() </span><span class="cov0" title="0">{
+        <span class="cov8" title="4">defer func() </span><span class="cov8" title="4">{
                 if err := resp.Body.Close(); err != nil </span><span class="cov0" title="0">{
                         c.log.Error("closing body error", "error", err)
                 }</span>
         }()
-        <span class="cov0" title="0">if resp.StatusCode != http.StatusOK </span><span class="cov0" title="0">{
+        <span class="cov8" title="4">if resp.StatusCode != http.StatusOK </span><span class="cov1" title="1">{
                 return core.XKCDInfo{}, fmt.Errorf("HTTP %d: %s", resp.StatusCode, resp.Status)
         }</span>
-        <span class="cov0" title="0">bodyBytes, err := io.ReadAll(resp.Body)
+        <span class="cov7" title="3">bodyBytes, err := io.ReadAll(resp.Body)
         if err != nil </span><span class="cov0" title="0">{
                 return core.XKCDInfo{}, fmt.Errorf("read response body: %v", err)
         }</span>
-        <span class="cov0" title="0">var res struct {
+        <span class="cov7" title="3">var res struct {
                 ID          int    `json:"num"`
                 URL         string `json:"img"`
                 Title       string `json:"title"`
@@ -1845,15 +1845,15 @@ func (c Client) Get(ctx context.Context, id int) (core.XKCDInfo, error) <span cl
                 Alt         string `json:"alt"`
                 SafeTitle   string `json:"safe_title"`
         }
-        if err := json.Unmarshal(bodyBytes, &amp;res); err != nil </span><span class="cov0" title="0">{
+        if err := json.Unmarshal(bodyBytes, &amp;res); err != nil </span><span class="cov1" title="1">{
                 c.log.Error("JSON decode error", "id", id, "body", string(bodyBytes), "error", err)
                 return core.XKCDInfo{}, fmt.Errorf("decode Json: %v", err)
         }</span>
-        <span class="cov0" title="0">title := res.Title
-        if title == "" </span><span class="cov0" title="0">{
+        <span class="cov4" title="2">title := res.Title
+        if title == "" </span><span class="cov1" title="1">{
                 title = res.SafeTitle
         }</span>
-        <span class="cov0" title="0">return core.XKCDInfo{
+        <span class="cov4" title="2">return core.XKCDInfo{
                 ID:          res.ID,
                 URL:         res.URL,
                 Title:       title,
@@ -1862,31 +1862,31 @@ func (c Client) Get(ctx context.Context, id int) (core.XKCDInfo, error) <span cl
         }, nil</span>
 }
 
-func (c Client) LastID(ctx context.Context) (int, error) <span class="cov0" title="0">{
+func (c Client) LastID(ctx context.Context) (int, error) <span class="cov1" title="1">{
         req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.url+"/info.0.json", nil)
         if err != nil </span><span class="cov0" title="0">{
                 return 0, err
         }</span>
-        <span class="cov0" title="0">resp, err := c.client.Do(req)
+        <span class="cov1" title="1">resp, err := c.client.Do(req)
         if err != nil </span><span class="cov0" title="0">{
                 return 0, err
         }</span>
-        <span class="cov0" title="0">defer func() </span><span class="cov0" title="0">{
+        <span class="cov1" title="1">defer func() </span><span class="cov1" title="1">{
                 if err := resp.Body.Close(); err != nil </span><span class="cov0" title="0">{
                         c.log.Error("closing body error", "error", err)
                 }</span>
         }()
-        <span class="cov0" title="0">if resp.StatusCode != http.StatusOK </span><span class="cov0" title="0">{
+        <span class="cov1" title="1">if resp.StatusCode != http.StatusOK </span><span class="cov0" title="0">{
                 return 0, fmt.Errorf("HTTP %d: %s", resp.StatusCode, resp.Status)
         }</span>
 
-        <span class="cov0" title="0">var res struct {
+        <span class="cov1" title="1">var res struct {
                 Num int `json:"num"`
         }
         if err := json.NewDecoder(resp.Body).Decode(&amp;res); err != nil </span><span class="cov0" title="0">{
                 return 0, err
         }</span>
-        <span class="cov0" title="0">return res.Num, nil</span>
+        <span class="cov1" title="1">return res.Num, nil</span>
 }
 </pre>
 		
