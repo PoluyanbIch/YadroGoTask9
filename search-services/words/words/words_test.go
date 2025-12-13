@@ -37,6 +37,11 @@ func TestNorm(t *testing.T) {
 			given:    "I and you or me or them, who will?",
 			expected: []string{},
 		},
+		{
+			desc:     "not latin letters",
+			given:    "русский язык",
+			expected: []string{},
+		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {

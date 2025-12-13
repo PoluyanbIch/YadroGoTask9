@@ -103,9 +103,9 @@
 				
 				<option value="file23">yadro.com/course/update/config/config.go (0.0%)</option>
 				
-				<option value="file24">yadro.com/course/update/core/service.go (0.0%)</option>
+				<option value="file24">yadro.com/course/update/core/service.go (74.7%)</option>
 				
-				<option value="file25">yadro.com/course/words/words/words.go (93.3%)</option>
+				<option value="file25">yadro.com/course/words/words/words.go (100.0%)</option>
 				
 				</select>
 			</div>
@@ -1948,11 +1948,11 @@ type Service struct {
 
 func NewService(
         log *slog.Logger, db DB, xkcd XKCD, words Words, publisher Publisher, concurrency int,
-) (*Service, error) <span class="cov0" title="0">{
-        if concurrency &lt; 1 </span><span class="cov0" title="0">{
+) (*Service, error) <span class="cov10" title="6">{
+        if concurrency &lt; 1 </span><span class="cov1" title="1">{
                 return nil, fmt.Errorf("wrong concurrency specified: %d", concurrency)
         }</span>
-        <span class="cov0" title="0">s := &amp;Service{
+        <span class="cov9" title="5">s := &amp;Service{
                 log:         log,
                 db:          db,
                 xkcd:        xkcd,
@@ -1965,72 +1965,72 @@ func NewService(
         return s, nil</span>
 }
 
-func (s *Service) Update(ctx context.Context) (err error) <span class="cov0" title="0">{
-        if !atomic.CompareAndSwapInt32(&amp;s.isUpdating, 0, 1) </span><span class="cov0" title="0">{
+func (s *Service) Update(ctx context.Context) (err error) <span class="cov4" title="2">{
+        if !atomic.CompareAndSwapInt32(&amp;s.isUpdating, 0, 1) </span><span class="cov1" title="1">{
                 return ErrUpdateInProgress
         }</span>
-        <span class="cov0" title="0">defer atomic.StoreInt32(&amp;s.isUpdating, 0)
+        <span class="cov1" title="1">defer atomic.StoreInt32(&amp;s.isUpdating, 0)
         s.status.Store(StatusRunning)
 
-        defer func() </span><span class="cov0" title="0">{ s.status.Store(StatusIdle) }</span>()
-        <span class="cov0" title="0">var ids []int
+        defer func() </span><span class="cov1" title="1">{ s.status.Store(StatusIdle) }</span>()
+        <span class="cov1" title="1">var ids []int
         existIDs, err := s.db.IDs(ctx)
         if err != nil </span><span class="cov0" title="0">{
                 return err
         }</span>
-        <span class="cov0" title="0">lastID, err := s.xkcd.LastID(ctx)
+        <span class="cov1" title="1">lastID, err := s.xkcd.LastID(ctx)
         if err != nil </span><span class="cov0" title="0">{
                 return err
         }</span>
-        <span class="cov0" title="0">for i := range lastID + 1 </span><span class="cov0" title="0">{
-                if !slices.Contains(existIDs, i) &amp;&amp; i != 404 &amp;&amp; i != 0 </span><span class="cov0" title="0">{
+        <span class="cov1" title="1">for i := range lastID + 1 </span><span class="cov4" title="2">{
+                if !slices.Contains(existIDs, i) &amp;&amp; i != 404 &amp;&amp; i != 0 </span><span class="cov1" title="1">{
                         ids = append(ids, i)
                 }</span>
         }
-        <span class="cov0" title="0">for i := 0; i &lt; len(ids); i += s.concurrency </span><span class="cov0" title="0">{
+        <span class="cov1" title="1">for i := 0; i &lt; len(ids); i += s.concurrency </span><span class="cov1" title="1">{
                 end := i + s.concurrency
-                if end &gt; len(ids) </span><span class="cov0" title="0">{
+                if end &gt; len(ids) </span><span class="cov1" title="1">{
                         end = len(ids)
                 }</span>
-                <span class="cov0" title="0">var wg sync.WaitGroup
+                <span class="cov1" title="1">var wg sync.WaitGroup
                 comicsChan := make(chan Comics, s.concurrency)
-                for _, id := range ids[i:end] </span><span class="cov0" title="0">{
-                        wg.Go(func() </span><span class="cov0" title="0">{
+                for _, id := range ids[i:end] </span><span class="cov1" title="1">{
+                        wg.Go(func() </span><span class="cov1" title="1">{
                                 xkcdComics, err := s.xkcd.Get(ctx, id)
                                 if err != nil </span><span class="cov0" title="0">{
                                         s.log.Error("xkcd.get error", "error", err)
                                         return
                                 }</span>
 
-                                <span class="cov0" title="0">description, err := s.words.Norm(ctx, xkcdComics.Description)
+                                <span class="cov1" title="1">description, err := s.words.Norm(ctx, xkcdComics.Description)
                                 if err != nil </span><span class="cov0" title="0">{
                                         s.log.Error("words.norm description error", "error", err)
                                         return
                                 }</span>
-                                <span class="cov0" title="0">alt, err := s.words.Norm(ctx, xkcdComics.Alt)
+                                <span class="cov1" title="1">alt, err := s.words.Norm(ctx, xkcdComics.Alt)
                                 if err != nil </span><span class="cov0" title="0">{
                                         s.log.Error("words.norm alt error", "error", err)
                                         return
                                 }</span>
-                                <span class="cov0" title="0">title, err := s.words.Norm(ctx, xkcdComics.Title)
+                                <span class="cov1" title="1">title, err := s.words.Norm(ctx, xkcdComics.Title)
                                 if err != nil </span><span class="cov0" title="0">{
                                         s.log.Error("words.norm title error", "error", err)
                                         return
                                 }</span>
 
-                                <span class="cov0" title="0">descriptionMap := make(map[string]int)
-                                for _, w := range description </span><span class="cov0" title="0">{
+                                <span class="cov1" title="1">descriptionMap := make(map[string]int)
+                                for _, w := range description </span><span class="cov4" title="2">{
                                         descriptionMap[w]++
                                 }</span>
-                                <span class="cov0" title="0">altMap := make(map[string]int)
-                                for _, w := range alt </span><span class="cov0" title="0">{
+                                <span class="cov1" title="1">altMap := make(map[string]int)
+                                for _, w := range alt </span><span class="cov4" title="2">{
                                         altMap[w]++
                                 }</span>
-                                <span class="cov0" title="0">titleMap := make(map[string]int)
-                                for _, w := range title </span><span class="cov0" title="0">{
+                                <span class="cov1" title="1">titleMap := make(map[string]int)
+                                for _, w := range title </span><span class="cov4" title="2">{
                                         titleMap[w]++
                                 }</span>
-                                <span class="cov0" title="0">comics := Comics{
+                                <span class="cov1" title="1">comics := Comics{
                                         ID:          xkcdComics.ID,
                                         URL:         xkcdComics.URL,
                                         Description: descriptionMap,
@@ -2041,54 +2041,54 @@ func (s *Service) Update(ctx context.Context) (err error) <span class="cov0" tit
                                 comicsChan &lt;- comics</span>
                         })
                 }
-                <span class="cov0" title="0">go func() </span><span class="cov0" title="0">{
+                <span class="cov1" title="1">go func() </span><span class="cov1" title="1">{
                         wg.Wait()
                         close(comicsChan)
                 }</span>()
-                <span class="cov0" title="0">for c := range comicsChan </span><span class="cov0" title="0">{
+                <span class="cov1" title="1">for c := range comicsChan </span><span class="cov1" title="1">{
                         if err := s.db.Add(ctx, c); err != nil </span><span class="cov0" title="0">{
                                 s.log.Error("db.add error", "error", err)
                         }</span>
                 }
         }
-        <span class="cov0" title="0">if err := s.publisher.Publish(ctx, "xkcd.db.update", []byte("XKCD DB has been updated")); err != nil </span><span class="cov0" title="0">{
+        <span class="cov1" title="1">if err := s.publisher.Publish(ctx, "xkcd.db.update", []byte("XKCD DB has been updated")); err != nil </span><span class="cov0" title="0">{
                 s.log.Error("publish update failed", "error", err)
                 return err
         }</span>
-        <span class="cov0" title="0">return nil</span>
+        <span class="cov1" title="1">return nil</span>
 }
 
-func (s *Service) Stats(ctx context.Context) (ServiceStats, error) <span class="cov0" title="0">{
+func (s *Service) Stats(ctx context.Context) (ServiceStats, error) <span class="cov1" title="1">{
         dbStats, err := s.db.Stats(ctx)
         if err != nil </span><span class="cov0" title="0">{
                 s.log.Error("db.stats", "error", err)
                 return ServiceStats{}, err
         }</span>
-        <span class="cov0" title="0">comicsTotal, err := s.xkcd.LastID(ctx)
+        <span class="cov1" title="1">comicsTotal, err := s.xkcd.LastID(ctx)
         if err != nil </span><span class="cov0" title="0">{
                 s.log.Error("xkcd.lastid", "error", err)
                 return ServiceStats{}, err
         }</span>
-        <span class="cov0" title="0">return ServiceStats{
+        <span class="cov1" title="1">return ServiceStats{
                 DBStats:     dbStats,
                 ComicsTotal: comicsTotal - 1,
         }, nil</span>
 }
 
-func (s *Service) Status(ctx context.Context) ServiceStatus <span class="cov0" title="0">{
+func (s *Service) Status(ctx context.Context) ServiceStatus <span class="cov1" title="1">{
         return s.status.Load().(ServiceStatus)
 }</span>
 
-func (s *Service) Drop(ctx context.Context) error <span class="cov0" title="0">{
+func (s *Service) Drop(ctx context.Context) error <span class="cov1" title="1">{
         if err := s.db.Drop(ctx); err != nil </span><span class="cov0" title="0">{
                 s.log.Error("db.drop", "error", err)
                 return err
         }</span>
-        <span class="cov0" title="0">if err := s.publisher.Publish(ctx, "xkcd.db.drop", []byte("XKCD db has been dropped")); err != nil </span><span class="cov0" title="0">{
+        <span class="cov1" title="1">if err := s.publisher.Publish(ctx, "xkcd.db.drop", []byte("XKCD db has been dropped")); err != nil </span><span class="cov0" title="0">{
                 s.log.Error("publish drop failed", "error", err)
                 return err
         }</span>
-        <span class="cov0" title="0">return nil</span>
+        <span class="cov1" title="1">return nil</span>
 }
 </pre>
 		
@@ -2103,14 +2103,14 @@ import (
         "github.com/kljensen/snowball/english"
 )
 
-func Norm(phrase string) []string <span class="cov4" title="5">{
+func Norm(phrase string) []string <span class="cov4" title="6">{
         words := make(map[string]bool)
-        splitted := strings.FieldsFunc(phrase, func(r rune) bool </span><span class="cov10" title="89">{
+        splitted := strings.FieldsFunc(phrase, func(r rune) bool </span><span class="cov10" title="101">{
                 return !unicode.IsDigit(r) &amp;&amp; !unicode.IsLetter(r)
         }</span>)
-        <span class="cov4" title="5">for _, w := range splitted </span><span class="cov6" title="19">{
+        <span class="cov4" title="6">for _, w := range splitted </span><span class="cov6" title="21">{
                 w := strings.ToLower(w)
-                if !isEnglishWord(w) </span><span class="cov0" title="0">{
+                if !isEnglishWord(w) </span><span class="cov2" title="2">{
                         continue</span>
                 }
                 <span class="cov6" title="19">if english.IsStopWord(w) </span><span class="cov6" title="13">{
@@ -2118,16 +2118,16 @@ func Norm(phrase string) []string <span class="cov4" title="5">{
                 }
                 <span class="cov4" title="6">words[english.Stem(w, false)] = true</span>
         }
-        <span class="cov4" title="5">return slices.Collect(maps.Keys(words))</span>
+        <span class="cov4" title="6">return slices.Collect(maps.Keys(words))</span>
 }
 
-func isEnglishWord(word string) bool <span class="cov7" title="24">{
-        for _, r := range word </span><span class="cov9" title="82">{
-                if !unicode.Is(unicode.Latin, r) </span><span class="cov3" title="3">{
+func isEnglishWord(word string) bool <span class="cov7" title="26">{
+        for _, r := range word </span><span class="cov9" title="84">{
+                if !unicode.Is(unicode.Latin, r) </span><span class="cov4" title="5">{
                         return false
                 }</span>
         }
-        <span class="cov7" title="21">return len(word) &gt; 0</span>
+        <span class="cov6" title="21">return len(word) &gt; 0</span>
 }
 </pre>
 		
