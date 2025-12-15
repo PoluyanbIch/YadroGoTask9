@@ -87,7 +87,7 @@
 				
 				<option value="file15">yadro.com/course/search/config/config.go (0.0%)</option>
 				
-				<option value="file16">yadro.com/course/search/core/service.go (0.0%)</option>
+				<option value="file16">yadro.com/course/search/core/service.go (88.0%)</option>
 				
 				<option value="file17">yadro.com/course/update/adapters/db/migrations.go (0.0%)</option>
 				
@@ -1219,7 +1219,7 @@ type Service struct {
         comicsMap map[int]DBComic
 }
 
-func NewService(log *slog.Logger, db DB, words Words) *Service <span class="cov0" title="0">{
+func NewService(log *slog.Logger, db DB, words Words) *Service <span class="cov5" title="5">{
         s := &amp;Service{
                 log:       log,
                 db:        db,
@@ -1230,55 +1230,55 @@ func NewService(log *slog.Logger, db DB, words Words) *Service <span class="cov0
         return s
 }</span>
 
-func (s *Service) Search(ctx context.Context, phrase string, limit int) ([]Comic, error) <span class="cov0" title="0">{
+func (s *Service) Search(ctx context.Context, phrase string, limit int) ([]Comic, error) <span class="cov4" title="3">{
         normPhrase, err := s.words.Norm(ctx, phrase)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov1" title="1">{
                 s.log.Error("Search/words error", "error", err)
                 return nil, err
         }</span>
-        <span class="cov0" title="0">comics, err := s.db.Read(ctx)
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov2" title="2">comics, err := s.db.Read(ctx)
+        if err != nil </span><span class="cov1" title="1">{
                 s.log.Error("Search/db error", "error", err)
                 return nil, err
         }</span>
-        <span class="cov0" title="0">comicsMap := make(map[int]DBComic)
-        for _, comic := range comics </span><span class="cov0" title="0">{
+        <span class="cov1" title="1">comicsMap := make(map[int]DBComic)
+        for _, comic := range comics </span><span class="cov2" title="2">{
                 comicsMap[comic.ID] = comic
         }</span>
-        <span class="cov0" title="0">res := search(normPhrase, comics)
+        <span class="cov1" title="1">res := search(normPhrase, comics)
 
         type result struct {
                 ID    int
                 Score float64
         }
         var sortedResult []result
-        for id, score := range res </span><span class="cov0" title="0">{
+        for id, score := range res </span><span class="cov2" title="2">{
                 sortedResult = append(sortedResult, result{ID: id, Score: score})
         }</span>
-        <span class="cov0" title="0">sort.Slice(sortedResult, func(i, j int) bool </span><span class="cov0" title="0">{ return sortedResult[i].Score &gt; sortedResult[j].Score }</span>)
-        <span class="cov0" title="0">var searchResult []Comic
-        for _, i := range sortedResult </span><span class="cov0" title="0">{
+        <span class="cov1" title="1">sort.Slice(sortedResult, func(i, j int) bool </span><span class="cov1" title="1">{ return sortedResult[i].Score &gt; sortedResult[j].Score }</span>)
+        <span class="cov1" title="1">var searchResult []Comic
+        for _, i := range sortedResult </span><span class="cov2" title="2">{
                 searchResult = append(searchResult, Comic{ID: i.ID, URL: comicsMap[i.ID].URL})
         }</span>
-        <span class="cov0" title="0">if len(searchResult) &lt; limit </span><span class="cov0" title="0">{
+        <span class="cov1" title="1">if len(searchResult) &lt; limit </span><span class="cov1" title="1">{
                 limit = len(searchResult)
         }</span>
-        <span class="cov0" title="0">return searchResult[:limit], nil</span>
+        <span class="cov1" title="1">return searchResult[:limit], nil</span>
 }
 
-func (s *Service) ISearch(ctx context.Context, phrase string, limit int) ([]Comic, error) <span class="cov0" title="0">{
+func (s *Service) ISearch(ctx context.Context, phrase string, limit int) ([]Comic, error) <span class="cov1" title="1">{
         normPhrase, err := s.words.Norm(ctx, phrase)
         if err != nil </span><span class="cov0" title="0">{
                 s.log.Error("norm phrase error", "error", err)
                 return nil, err
         }</span>
 
-        <span class="cov0" title="0">idfCache := make(map[string]float64)
-        for _, word := range normPhrase </span><span class="cov0" title="0">{
+        <span class="cov1" title="1">idfCache := make(map[string]float64)
+        for _, word := range normPhrase </span><span class="cov1" title="1">{
                 idfCache[word] = indexCalculateIDF(word, s.index[word], s.comicsMap)
         }</span>
 
-        <span class="cov0" title="0">const (
+        <span class="cov1" title="1">const (
                 titleWeight       = 3.0
                 altWeight         = 2.0
                 descriptionWeight = 1.0
@@ -1286,20 +1286,20 @@ func (s *Service) ISearch(ctx context.Context, phrase string, limit int) ([]Comi
         )
         res := make(map[int]float64)
         comicsWithWords := make(map[int]struct{})
-        for _, word := range normPhrase </span><span class="cov0" title="0">{
-                for _, id := range s.index[word] </span><span class="cov0" title="0">{
+        for _, word := range normPhrase </span><span class="cov1" title="1">{
+                for _, id := range s.index[word] </span><span class="cov2" title="2">{
                         comicsWithWords[id] = struct{}{}
                 }</span>
         }
-        <span class="cov0" title="0">for id := range comicsWithWords </span><span class="cov0" title="0">{
+        <span class="cov1" title="1">for id := range comicsWithWords </span><span class="cov2" title="2">{
                 res[id] = 0
                 countMatchWords := 0
-                for _, word := range normPhrase </span><span class="cov0" title="0">{
+                for _, word := range normPhrase </span><span class="cov2" title="2">{
                         res[id] += idfCache[word] * calculateTF(word, s.comicsMap[id].Title) * titleWeight
                         res[id] += idfCache[word] * calculateTF(word, s.comicsMap[id].Alt) * altWeight
                         res[id] += idfCache[word] * calculateTF(word, s.comicsMap[id].Description) * descriptionWeight
                         switch </span>{
-                        case countSubstringInField(word, s.comicsMap[id].Title) &gt; 0:<span class="cov0" title="0">
+                        case countSubstringInField(word, s.comicsMap[id].Title) &gt; 0:<span class="cov2" title="2">
                                 countMatchWords++</span>
                         case countSubstringInField(word, s.comicsMap[id].Alt) &gt; 0:<span class="cov0" title="0">
                                 countMatchWords++</span>
@@ -1307,107 +1307,107 @@ func (s *Service) ISearch(ctx context.Context, phrase string, limit int) ([]Comi
                                 countMatchWords++</span>
                         }
                 }
-                <span class="cov0" title="0">if countMatchWords == len(normPhrase) </span><span class="cov0" title="0">{
+                <span class="cov2" title="2">if countMatchWords == len(normPhrase) </span><span class="cov2" title="2">{
                         res[id] *= fullMatchBonus
                 }</span>
         }
-        <span class="cov0" title="0">type result struct {
+        <span class="cov1" title="1">type result struct {
                 ID    int
                 Score float64
         }
         var sortedResult []result
-        for id, score := range res </span><span class="cov0" title="0">{
+        for id, score := range res </span><span class="cov2" title="2">{
                 sortedResult = append(sortedResult, result{ID: id, Score: score})
         }</span>
-        <span class="cov0" title="0">sort.Slice(sortedResult, func(i, j int) bool </span><span class="cov0" title="0">{ return sortedResult[i].Score &gt; sortedResult[j].Score }</span>)
-        <span class="cov0" title="0">var searchResult []Comic
-        for _, i := range sortedResult </span><span class="cov0" title="0">{
+        <span class="cov1" title="1">sort.Slice(sortedResult, func(i, j int) bool </span><span class="cov1" title="1">{ return sortedResult[i].Score &gt; sortedResult[j].Score }</span>)
+        <span class="cov1" title="1">var searchResult []Comic
+        for _, i := range sortedResult </span><span class="cov2" title="2">{
                 searchResult = append(searchResult, Comic{ID: i.ID, URL: s.comicsMap[i.ID].URL})
         }</span>
-        <span class="cov0" title="0">if len(searchResult) &lt; limit </span><span class="cov0" title="0">{
+        <span class="cov1" title="1">if len(searchResult) &lt; limit </span><span class="cov1" title="1">{
                 limit = len(searchResult)
         }</span>
-        <span class="cov0" title="0">return searchResult[:limit], nil</span>
+        <span class="cov1" title="1">return searchResult[:limit], nil</span>
 }
 
-func (s *Service) BuildIndex(ctx context.Context) error <span class="cov0" title="0">{
+func (s *Service) BuildIndex(ctx context.Context) error <span class="cov2" title="2">{
         comics, err := s.db.Read(ctx)
         if err != nil </span><span class="cov0" title="0">{
                 s.log.Error("DB Read error", "error", err)
                 return err
         }</span>
-        <span class="cov0" title="0">comicsMap := make(map[int]DBComic)
+        <span class="cov2" title="2">comicsMap := make(map[int]DBComic)
         index := make(map[string][]int)
-        for _, c := range comics </span><span class="cov0" title="0">{
+        for _, c := range comics </span><span class="cov4" title="4">{
                 comicsMap[c.ID] = c
                 words := mergeMaps(c.Alt, mergeMaps(c.Description, c.Title))
-                for word := range words </span><span class="cov0" title="0">{
+                for word := range words </span><span class="cov6" title="8">{
                         index[word] = append(index[word], c.ID)
                 }</span>
         }
-        <span class="cov0" title="0">s.index = index
+        <span class="cov2" title="2">s.index = index
         s.comicsMap = comicsMap
         return nil</span>
 }
 
-func mergeMaps(map1 map[string]int, map2 map[string]int) map[string]int <span class="cov0" title="0">{
+func mergeMaps(map1 map[string]int, map2 map[string]int) map[string]int <span class="cov6" title="8">{
         result := make(map[string]int)
-        for key, el := range map2 </span><span class="cov0" title="0">{
+        for key, el := range map2 </span><span class="cov8" title="12">{
                 result[key] += el
         }</span>
-        <span class="cov0" title="0">for key, el := range map1 </span><span class="cov0" title="0">{
+        <span class="cov6" title="8">for key, el := range map1 </span><span class="cov4" title="4">{
                 result[key] += el
         }</span>
-        <span class="cov0" title="0">return result</span>
+        <span class="cov6" title="8">return result</span>
 }
 
-func search(phrase []string, comics []DBComic) map[int]float64 <span class="cov0" title="0">{
+func search(phrase []string, comics []DBComic) map[int]float64 <span class="cov1" title="1">{
         res := make(map[int]float64)
 
         comicsMap := make(map[int]DBComic)
-        for _, comic := range comics </span><span class="cov0" title="0">{
+        for _, comic := range comics </span><span class="cov2" title="2">{
                 comicsMap[comic.ID] = comic
         }</span>
 
-        <span class="cov0" title="0">var comicsWithWords []int
-        for _, c := range comics </span><span class="cov0" title="0">{
-                for _, word := range phrase </span><span class="cov0" title="0">{
+        <span class="cov1" title="1">var comicsWithWords []int
+        for _, c := range comics </span><span class="cov2" title="2">{
+                for _, word := range phrase </span><span class="cov2" title="2">{
                         if countSubstringInField(word, c.Description) &gt; 0 </span><span class="cov0" title="0">{
                                 comicsWithWords = append(comicsWithWords, c.ID)
                                 break</span>
                         }
-                        <span class="cov0" title="0">if countSubstringInField(word, c.Alt) &gt; 0 </span><span class="cov0" title="0">{
+                        <span class="cov2" title="2">if countSubstringInField(word, c.Alt) &gt; 0 </span><span class="cov0" title="0">{
                                 comicsWithWords = append(comicsWithWords, c.ID)
                                 break</span>
                         }
-                        <span class="cov0" title="0">if countSubstringInField(word, c.Title) &gt; 0 </span><span class="cov0" title="0">{
+                        <span class="cov2" title="2">if countSubstringInField(word, c.Title) &gt; 0 </span><span class="cov2" title="2">{
                                 comicsWithWords = append(comicsWithWords, c.ID)
                                 break</span>
                         }
                 }
         }
 
-        <span class="cov0" title="0">idfCache := make(map[string]float64)
-        for _, word := range phrase </span><span class="cov0" title="0">{
+        <span class="cov1" title="1">idfCache := make(map[string]float64)
+        for _, word := range phrase </span><span class="cov1" title="1">{
                 idfCache[word] = calculateIDF(word, comics)
         }</span>
-        <span class="cov0" title="0">const (
+        <span class="cov1" title="1">const (
                 titleWeight       = 3.0
                 altWeight         = 2.0
                 descriptionWeight = 1.0
                 fullMatchBonus    = 100.0
         )
 
-        for _, id := range comicsWithWords </span><span class="cov0" title="0">{
+        for _, id := range comicsWithWords </span><span class="cov2" title="2">{
 
                 res[id] = 0
                 countMatchWords := 0
-                for _, word := range phrase </span><span class="cov0" title="0">{
+                for _, word := range phrase </span><span class="cov2" title="2">{
                         res[id] += idfCache[word] * calculateTF(word, comicsMap[id].Title) * titleWeight
                         res[id] += idfCache[word] * calculateTF(word, comicsMap[id].Alt) * altWeight
                         res[id] += idfCache[word] * calculateTF(word, comicsMap[id].Description) * descriptionWeight
                         switch </span>{
-                        case countSubstringInField(word, comicsMap[id].Title) &gt; 0:<span class="cov0" title="0">
+                        case countSubstringInField(word, comicsMap[id].Title) &gt; 0:<span class="cov2" title="2">
                                 countMatchWords++</span>
                         case countSubstringInField(word, comicsMap[id].Alt) &gt; 0:<span class="cov0" title="0">
                                 countMatchWords++</span>
@@ -1415,36 +1415,36 @@ func search(phrase []string, comics []DBComic) map[int]float64 <span class="cov0
                                 countMatchWords++</span>
                         }
                 }
-                <span class="cov0" title="0">if countMatchWords == len(phrase) </span><span class="cov0" title="0">{
+                <span class="cov2" title="2">if countMatchWords == len(phrase) </span><span class="cov2" title="2">{
                         res[id] *= fullMatchBonus
                 }</span>
         }
-        <span class="cov0" title="0">return res</span>
+        <span class="cov1" title="1">return res</span>
 }
 
-func calculateTF(word string, field map[string]int) float64 <span class="cov0" title="0">{
-        if field == nil </span><span class="cov0" title="0">{
+func calculateTF(word string, field map[string]int) float64 <span class="cov8" title="13">{
+        if field == nil </span><span class="cov4" title="4">{
                 return 0
         }</span>
-        <span class="cov0" title="0">num := countSubstringInField(word, field)
+        <span class="cov7" title="9">num := countSubstringInField(word, field)
         sum := 0
-        for _, val := range field </span><span class="cov0" title="0">{
+        for _, val := range field </span><span class="cov7" title="10">{
                 sum += val
         }</span>
-        <span class="cov0" title="0">if sum == 0 </span><span class="cov0" title="0">{
+        <span class="cov7" title="9">if sum == 0 </span><span class="cov0" title="0">{
                 return 0
         }</span>
-        <span class="cov0" title="0">return float64(num) / float64(sum)</span>
+        <span class="cov7" title="9">return float64(num) / float64(sum)</span>
 }
 
-func indexCalculateIDF(word string, comicIds []int, comicsMap map[int]DBComic) float64 <span class="cov0" title="0">{
+func indexCalculateIDF(word string, comicIds []int, comicsMap map[int]DBComic) float64 <span class="cov1" title="1">{
         num := 0
-        for _, comic := range comicsMap </span><span class="cov0" title="0">{
+        for _, comic := range comicsMap </span><span class="cov2" title="2">{
                 title := comic.Title
                 alt := comic.Alt
                 description := comic.Description
                 switch </span>{
-                case countSubstringInField(word, title) &gt; 0:<span class="cov0" title="0">
+                case countSubstringInField(word, title) &gt; 0:<span class="cov2" title="2">
                         num++</span>
                 case countSubstringInField(word, alt) &gt; 0:<span class="cov0" title="0">
                         num++</span>
@@ -1452,21 +1452,21 @@ func indexCalculateIDF(word string, comicIds []int, comicsMap map[int]DBComic) f
                         num++</span>
                 }
         }
-        <span class="cov0" title="0">if num == 0 </span><span class="cov0" title="0">{
+        <span class="cov1" title="1">if num == 0 </span><span class="cov0" title="0">{
                 return 0
         }</span>
-        <span class="cov0" title="0">sum := len(comicsMap)
+        <span class="cov1" title="1">sum := len(comicsMap)
         return math.Log(float64(sum) / float64(num))</span>
 }
 
-func calculateIDF(word string, comics []DBComic) float64 <span class="cov0" title="0">{
+func calculateIDF(word string, comics []DBComic) float64 <span class="cov1" title="1">{
         num := 0
-        for _, comic := range comics </span><span class="cov0" title="0">{
+        for _, comic := range comics </span><span class="cov2" title="2">{
                 title := comic.Title
                 alt := comic.Alt
                 description := comic.Description
                 switch </span>{
-                case countSubstringInField(word, title) &gt; 0:<span class="cov0" title="0">
+                case countSubstringInField(word, title) &gt; 0:<span class="cov2" title="2">
                         num++</span>
                 case countSubstringInField(word, alt) &gt; 0:<span class="cov0" title="0">
                         num++</span>
@@ -1474,21 +1474,21 @@ func calculateIDF(word string, comics []DBComic) float64 <span class="cov0" titl
                         num++</span>
                 }
         }
-        <span class="cov0" title="0">if num == 0 </span><span class="cov0" title="0">{
+        <span class="cov1" title="1">if num == 0 </span><span class="cov0" title="0">{
                 return 0
         }</span>
-        <span class="cov0" title="0">sum := len(comics)
+        <span class="cov1" title="1">sum := len(comics)
         return math.Log(float64(sum) / float64(num))</span>
 }
 
-func countSubstringInField(word string, field map[string]int) int <span class="cov0" title="0">{
+func countSubstringInField(word string, field map[string]int) int <span class="cov10" title="24">{
         num := 0
-        for w := range field </span><span class="cov0" title="0">{
-                if strings.Contains(word, w) || strings.Contains(w, word) </span><span class="cov0" title="0">{
+        for w := range field </span><span class="cov9" title="23">{
+                if strings.Contains(word, w) || strings.Contains(w, word) </span><span class="cov8" title="16">{
                         num += field[w]
                 }</span>
         }
-        <span class="cov0" title="0">return num</span>
+        <span class="cov10" title="24">return num</span>
 }
 </pre>
 		
