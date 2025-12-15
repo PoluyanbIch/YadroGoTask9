@@ -4,6 +4,7 @@ import (
 	"context"
 )
 
+//go:generate mockgen -destination=mock_searcher.go -package=core . Searcher
 type Searcher interface {
 	Search(context.Context, string, int) ([]Comic, error)
 	ISearch(context.Context, string, int) ([]Comic, error)
