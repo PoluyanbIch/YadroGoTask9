@@ -77,7 +77,7 @@
 				
 				<option value="file10">yadro.com/course/search/adapters/db/storage.go (0.0%)</option>
 				
-				<option value="file11">yadro.com/course/search/adapters/grpc/server.go (0.0%)</option>
+				<option value="file11">yadro.com/course/search/adapters/grpc/server.go (88.9%)</option>
 				
 				<option value="file12">yadro.com/course/search/adapters/initiator/initiator.go (0.0%)</option>
 				
@@ -87,25 +87,29 @@
 				
 				<option value="file15">yadro.com/course/search/config/config.go (0.0%)</option>
 				
-				<option value="file16">yadro.com/course/search/core/service.go (88.0%)</option>
+				<option value="file16">yadro.com/course/search/core/mock_searcher.go (0.0%)</option>
 				
-				<option value="file17">yadro.com/course/update/adapters/db/migrations.go (0.0%)</option>
+				<option value="file17">yadro.com/course/search/core/service.go (88.0%)</option>
 				
-				<option value="file18">yadro.com/course/update/adapters/db/storage.go (0.0%)</option>
+				<option value="file18">yadro.com/course/update/adapters/db/migrations.go (0.0%)</option>
 				
-				<option value="file19">yadro.com/course/update/adapters/grpc/server.go (0.0%)</option>
+				<option value="file19">yadro.com/course/update/adapters/db/storage.go (0.0%)</option>
 				
-				<option value="file20">yadro.com/course/update/adapters/nats/publisher.go (0.0%)</option>
+				<option value="file20">yadro.com/course/update/adapters/grpc/server.go (78.9%)</option>
 				
-				<option value="file21">yadro.com/course/update/adapters/words/words.go (0.0%)</option>
+				<option value="file21">yadro.com/course/update/adapters/nats/publisher.go (0.0%)</option>
 				
-				<option value="file22">yadro.com/course/update/adapters/xkcd/xkcd.go (75.6%)</option>
+				<option value="file22">yadro.com/course/update/adapters/words/words.go (0.0%)</option>
 				
-				<option value="file23">yadro.com/course/update/config/config.go (0.0%)</option>
+				<option value="file23">yadro.com/course/update/adapters/xkcd/xkcd.go (75.6%)</option>
 				
-				<option value="file24">yadro.com/course/update/core/service.go (74.7%)</option>
+				<option value="file24">yadro.com/course/update/config/config.go (0.0%)</option>
 				
-				<option value="file25">yadro.com/course/words/words/words.go (100.0%)</option>
+				<option value="file25">yadro.com/course/update/core/mock_updater.go (0.0%)</option>
+				
+				<option value="file26">yadro.com/course/update/core/service.go (74.7%)</option>
+				
+				<option value="file27">yadro.com/course/words/words/words.go (100.0%)</option>
 				
 				</select>
 			</div>
@@ -993,50 +997,50 @@ type Server struct {
         service core.Searcher
 }
 
-func NewServer(service core.Searcher) *Server <span class="cov0" title="0">{
+func NewServer(service core.Searcher) *Server <span class="cov10" title="4">{
         return &amp;Server{service: service}
 }</span>
 
-func (s *Server) Ping(_ context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) <span class="cov0" title="0">{
-        if s.service == nil </span><span class="cov0" title="0">{
+func (s *Server) Ping(_ context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) <span class="cov1" title="1">{
+        if s.service == nil </span><span class="cov1" title="1">{
                 return nil, status.Error(codes.Internal, "service not init")
         }</span>
         <span class="cov0" title="0">return nil, nil</span>
 }
 
-func (s *Server) Search(ctx context.Context, req *searchpb.SearchRequest) (*searchpb.SearchReply, error) <span class="cov0" title="0">{
+func (s *Server) Search(ctx context.Context, req *searchpb.SearchRequest) (*searchpb.SearchReply, error) <span class="cov5" title="2">{
         comics, err := s.service.Search(ctx, req.Phrase, int(req.Limit))
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov1" title="1">{
                 return nil, status.Errorf(codes.Internal, "search error: %v", err)
         }</span>
-        <span class="cov0" title="0">var pbComics []*searchpb.Comics
-        for _, comic := range comics </span><span class="cov0" title="0">{
+        <span class="cov1" title="1">var pbComics []*searchpb.Comics
+        for _, comic := range comics </span><span class="cov5" title="2">{
                 pbComics = append(pbComics, &amp;searchpb.Comics{
                         Id:  int64(comic.ID),
                         Url: comic.URL,
                 })
         }</span>
 
-        <span class="cov0" title="0">return &amp;searchpb.SearchReply{
+        <span class="cov1" title="1">return &amp;searchpb.SearchReply{
                 Comics: pbComics,
                 Total:  int64(len(pbComics)),
         }, nil</span>
 }
 
-func (s *Server) ISearch(ctx context.Context, req *searchpb.SearchRequest) (*searchpb.SearchReply, error) <span class="cov0" title="0">{
+func (s *Server) ISearch(ctx context.Context, req *searchpb.SearchRequest) (*searchpb.SearchReply, error) <span class="cov1" title="1">{
         comics, err := s.service.ISearch(ctx, req.Phrase, int(req.Limit))
         if err != nil </span><span class="cov0" title="0">{
                 return nil, status.Errorf(codes.Internal, "isearch error: %v", err)
         }</span>
-        <span class="cov0" title="0">var pbComics []*searchpb.Comics
-        for _, comic := range comics </span><span class="cov0" title="0">{
+        <span class="cov1" title="1">var pbComics []*searchpb.Comics
+        for _, comic := range comics </span><span class="cov1" title="1">{
                 pbComics = append(pbComics, &amp;searchpb.Comics{
                         Id:  int64(comic.ID),
                         Url: comic.URL,
                 })
         }</span>
 
-        <span class="cov0" title="0">return &amp;searchpb.SearchReply{
+        <span class="cov1" title="1">return &amp;searchpb.SearchReply{
                 Comics: pbComics,
                 Total:  int64(len(pbComics)),
         }, nil</span>
@@ -1201,7 +1205,80 @@ func MustLoad(configPath string) Config <span class="cov0" title="0">{
 }
 </pre>
 		
-		<pre class="file" id="file16" style="display: none">package core
+		<pre class="file" id="file16" style="display: none">// Code generated by MockGen. DO NOT EDIT.
+// Source: yadro.com/course/search/core (interfaces: Searcher)
+//
+// Generated by this command:
+//
+//        mockgen -destination=mock_searcher.go -package=core . Searcher
+//
+
+// Package core is a generated GoMock package.
+package core
+
+import (
+        context "context"
+        reflect "reflect"
+
+        gomock "go.uber.org/mock/gomock"
+)
+
+// MockSearcher is a mock of Searcher interface.
+type MockSearcher struct {
+        ctrl     *gomock.Controller
+        recorder *MockSearcherMockRecorder
+        isgomock struct{}
+}
+
+// MockSearcherMockRecorder is the mock recorder for MockSearcher.
+type MockSearcherMockRecorder struct {
+        mock *MockSearcher
+}
+
+// NewMockSearcher creates a new mock instance.
+func NewMockSearcher(ctrl *gomock.Controller) *MockSearcher <span class="cov0" title="0">{
+        mock := &amp;MockSearcher{ctrl: ctrl}
+        mock.recorder = &amp;MockSearcherMockRecorder{mock}
+        return mock
+}</span>
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockSearcher) EXPECT() *MockSearcherMockRecorder <span class="cov0" title="0">{
+        return m.recorder
+}</span>
+
+// ISearch mocks base method.
+func (m *MockSearcher) ISearch(arg0 context.Context, arg1 string, arg2 int) ([]Comic, error) <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "ISearch", arg0, arg1, arg2)
+        ret0, _ := ret[0].([]Comic)
+        ret1, _ := ret[1].(error)
+        return ret0, ret1
+}</span>
+
+// ISearch indicates an expected call of ISearch.
+func (mr *MockSearcherMockRecorder) ISearch(arg0, arg1, arg2 any) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ISearch", reflect.TypeOf((*MockSearcher)(nil).ISearch), arg0, arg1, arg2)
+}</span>
+
+// Search mocks base method.
+func (m *MockSearcher) Search(arg0 context.Context, arg1 string, arg2 int) ([]Comic, error) <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "Search", arg0, arg1, arg2)
+        ret0, _ := ret[0].([]Comic)
+        ret1, _ := ret[1].(error)
+        return ret0, ret1
+}</span>
+
+// Search indicates an expected call of Search.
+func (mr *MockSearcherMockRecorder) Search(arg0, arg1, arg2 any) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Search", reflect.TypeOf((*MockSearcher)(nil).Search), arg0, arg1, arg2)
+}</span>
+</pre>
+		
+		<pre class="file" id="file17" style="display: none">package core
 
 import (
         "context"
@@ -1492,7 +1569,7 @@ func countSubstringInField(word string, field map[string]int) int <span class="c
 }
 </pre>
 		
-		<pre class="file" id="file17" style="display: none">package db
+		<pre class="file" id="file18" style="display: none">package db
 
 import (
         "embed"
@@ -1535,7 +1612,7 @@ func (db *DB) Migrate() error <span class="cov0" title="0">{
 }
 </pre>
 		
-		<pre class="file" id="file18" style="display: none">package db
+		<pre class="file" id="file19" style="display: none">package db
 
 import (
         "context"
@@ -1636,7 +1713,7 @@ func (db *DB) Drop(ctx context.Context) error <span class="cov0" title="0">{
 }
 </pre>
 		
-		<pre class="file" id="file19" style="display: none">package grpc
+		<pre class="file" id="file20" style="display: none">package grpc
 
 import (
         "context"
@@ -1649,7 +1726,7 @@ import (
         "yadro.com/course/update/core"
 )
 
-func NewServer(service core.Updater) *Server <span class="cov0" title="0">{
+func NewServer(service core.Updater) *Server <span class="cov10" title="7">{
         return &amp;Server{service: service}
 }</span>
 
@@ -1658,36 +1735,36 @@ type Server struct {
         service core.Updater
 }
 
-func (s *Server) Ping(_ context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) <span class="cov0" title="0">{
-        if s.service == nil </span><span class="cov0" title="0">{
+func (s *Server) Ping(_ context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) <span class="cov1" title="1">{
+        if s.service == nil </span><span class="cov1" title="1">{
                 return nil, status.Error(codes.Internal, "service not init")
         }</span>
         <span class="cov0" title="0">return nil, nil</span>
 }
 
-func (s *Server) Status(ctx context.Context, _ *emptypb.Empty) (*updatepb.StatusReply, error) <span class="cov0" title="0">{
-        if s.service.Status(ctx) == core.StatusIdle </span><span class="cov0" title="0">{
+func (s *Server) Status(ctx context.Context, _ *emptypb.Empty) (*updatepb.StatusReply, error) <span class="cov4" title="2">{
+        if s.service.Status(ctx) == core.StatusIdle </span><span class="cov1" title="1">{
                 return &amp;updatepb.StatusReply{Status: updatepb.Status_STATUS_IDLE}, nil
         }</span>
-        <span class="cov0" title="0">return &amp;updatepb.StatusReply{Status: updatepb.Status_STATUS_RUNNING}, nil</span>
+        <span class="cov1" title="1">return &amp;updatepb.StatusReply{Status: updatepb.Status_STATUS_RUNNING}, nil</span>
 }
 
-func (s *Server) Update(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) <span class="cov0" title="0">{
-        if err := s.service.Update(ctx); err != nil </span><span class="cov0" title="0">{
-                if errors.Is(err, core.ErrUpdateInProgress) </span><span class="cov0" title="0">{
+func (s *Server) Update(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) <span class="cov4" title="2">{
+        if err := s.service.Update(ctx); err != nil </span><span class="cov4" title="2">{
+                if errors.Is(err, core.ErrUpdateInProgress) </span><span class="cov1" title="1">{
                         return nil, status.Error(codes.AlreadyExists, "update already in progress")
                 }</span>
-                <span class="cov0" title="0">return nil, status.Errorf(codes.Internal, "update error: %v", err)</span>
+                <span class="cov1" title="1">return nil, status.Errorf(codes.Internal, "update error: %v", err)</span>
         }
         <span class="cov0" title="0">return nil, nil</span>
 }
 
-func (s *Server) Stats(ctx context.Context, _ *emptypb.Empty) (*updatepb.StatsReply, error) <span class="cov0" title="0">{
+func (s *Server) Stats(ctx context.Context, _ *emptypb.Empty) (*updatepb.StatsReply, error) <span class="cov1" title="1">{
         stats, err := s.service.Stats(ctx)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, status.Errorf(codes.Internal, "stats error: %v", err)
         }</span>
-        <span class="cov0" title="0">return &amp;updatepb.StatsReply{
+        <span class="cov1" title="1">return &amp;updatepb.StatsReply{
                 WordsTotal:    int64(stats.WordsTotal),
                 WordsUnique:   int64(stats.WordsUnique),
                 ComicsFetched: int64(stats.ComicsFetched),
@@ -1695,15 +1772,15 @@ func (s *Server) Stats(ctx context.Context, _ *emptypb.Empty) (*updatepb.StatsRe
         }, nil</span>
 }
 
-func (s *Server) Drop(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) <span class="cov0" title="0">{
-        if err := s.service.Drop(ctx); err != nil </span><span class="cov0" title="0">{
+func (s *Server) Drop(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) <span class="cov1" title="1">{
+        if err := s.service.Drop(ctx); err != nil </span><span class="cov1" title="1">{
                 return nil, status.Errorf(codes.Internal, "drop error: %v", err)
         }</span>
         <span class="cov0" title="0">return nil, nil</span>
 }
 </pre>
 		
-		<pre class="file" id="file20" style="display: none">package nats
+		<pre class="file" id="file21" style="display: none">package nats
 
 import (
         "context"
@@ -1741,7 +1818,7 @@ func (p *NatsPublisher) Publish(ctx context.Context, subject string, data []byte
 }
 </pre>
 		
-		<pre class="file" id="file21" style="display: none">package words
+		<pre class="file" id="file22" style="display: none">package words
 
 import (
         "context"
@@ -1783,7 +1860,7 @@ func (c Client) Ping(ctx context.Context) error <span class="cov0" title="0">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file22" style="display: none">package xkcd
+		<pre class="file" id="file23" style="display: none">package xkcd
 
 import (
         "context"
@@ -1890,7 +1967,7 @@ func (c Client) LastID(ctx context.Context) (int, error) <span class="cov1" titl
 }
 </pre>
 		
-		<pre class="file" id="file23" style="display: none">package config
+		<pre class="file" id="file24" style="display: none">package config
 
 import (
         "log"
@@ -1924,7 +2001,107 @@ func MustLoad(configPath string) Config <span class="cov0" title="0">{
 }
 </pre>
 		
-		<pre class="file" id="file24" style="display: none">package core
+		<pre class="file" id="file25" style="display: none">// Code generated by MockGen. DO NOT EDIT.
+// Source: yadro.com/course/update/core (interfaces: Updater)
+//
+// Generated by this command:
+//
+//        mockgen -destination=mock_updater.go -package=core . Updater
+//
+
+// Package core is a generated GoMock package.
+package core
+
+import (
+        context "context"
+        reflect "reflect"
+
+        gomock "go.uber.org/mock/gomock"
+)
+
+// MockUpdater is a mock of Updater interface.
+type MockUpdater struct {
+        ctrl     *gomock.Controller
+        recorder *MockUpdaterMockRecorder
+        isgomock struct{}
+}
+
+// MockUpdaterMockRecorder is the mock recorder for MockUpdater.
+type MockUpdaterMockRecorder struct {
+        mock *MockUpdater
+}
+
+// NewMockUpdater creates a new mock instance.
+func NewMockUpdater(ctrl *gomock.Controller) *MockUpdater <span class="cov0" title="0">{
+        mock := &amp;MockUpdater{ctrl: ctrl}
+        mock.recorder = &amp;MockUpdaterMockRecorder{mock}
+        return mock
+}</span>
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockUpdater) EXPECT() *MockUpdaterMockRecorder <span class="cov0" title="0">{
+        return m.recorder
+}</span>
+
+// Drop mocks base method.
+func (m *MockUpdater) Drop(arg0 context.Context) error <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "Drop", arg0)
+        ret0, _ := ret[0].(error)
+        return ret0
+}</span>
+
+// Drop indicates an expected call of Drop.
+func (mr *MockUpdaterMockRecorder) Drop(arg0 any) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Drop", reflect.TypeOf((*MockUpdater)(nil).Drop), arg0)
+}</span>
+
+// Stats mocks base method.
+func (m *MockUpdater) Stats(arg0 context.Context) (ServiceStats, error) <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "Stats", arg0)
+        ret0, _ := ret[0].(ServiceStats)
+        ret1, _ := ret[1].(error)
+        return ret0, ret1
+}</span>
+
+// Stats indicates an expected call of Stats.
+func (mr *MockUpdaterMockRecorder) Stats(arg0 any) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Stats", reflect.TypeOf((*MockUpdater)(nil).Stats), arg0)
+}</span>
+
+// Status mocks base method.
+func (m *MockUpdater) Status(arg0 context.Context) ServiceStatus <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "Status", arg0)
+        ret0, _ := ret[0].(ServiceStatus)
+        return ret0
+}</span>
+
+// Status indicates an expected call of Status.
+func (mr *MockUpdaterMockRecorder) Status(arg0 any) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Status", reflect.TypeOf((*MockUpdater)(nil).Status), arg0)
+}</span>
+
+// Update mocks base method.
+func (m *MockUpdater) Update(arg0 context.Context) error <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "Update", arg0)
+        ret0, _ := ret[0].(error)
+        return ret0
+}</span>
+
+// Update indicates an expected call of Update.
+func (mr *MockUpdaterMockRecorder) Update(arg0 any) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUpdater)(nil).Update), arg0)
+}</span>
+</pre>
+		
+		<pre class="file" id="file26" style="display: none">package core
 
 import (
         "context"
@@ -2092,7 +2269,7 @@ func (s *Service) Drop(ctx context.Context) error <span class="cov1" title="1">{
 }
 </pre>
 		
-		<pre class="file" id="file25" style="display: none">package words
+		<pre class="file" id="file27" style="display: none">package words
 
 import (
         "maps"
